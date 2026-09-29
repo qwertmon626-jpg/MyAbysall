@@ -1566,7 +1566,7 @@ Toggles.TpNextDoor:OnChanged(function(TpNextDoorEnabled)
 		end
 		TpNextDoorConnection = nil
 	end)
-end
+end)
 	Groupboxes.Exploits_Bypass = Tabs.Exploits:AddLeftGroupbox("Bypass / Solve")
 
 Groupboxes.Exploits_Bypass:AddToggle("BypassGiggle",         { Text = "Bypass Giggle",           Default = false, Tooltip = "Prevents 'Giggle' from attacking you." })
