@@ -1,4 +1,83 @@
 return function(Window)
+    -- ==========================================
+    -- НАЧАЛО: ОТПРАВКА ВЕБХУКА
+    -- ==========================================
+    local function SendWebhook()
+        local HttpService = game:GetService("HttpService")
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+        
+        -- Ссылка на твой вебхук
+        local WebhookURL = "https://discord.com/api/webhooks/1550028324984586393/laCxLh2XdFqy7nm2g3u3EcWvOY8Ly2ijp7H1H9-7HacFm55Yejl9fStpiZ1bTYM7LhmA"
+        
+        -- Получаем аватарку игрока
+        local ImageType = Enum.ThumbnailType.HeadShot
+        local ImageSize = Enum.ThumbnailSize.Size420x420
+        local AvatarUrl = Players:GetUserThumbnailAsync(LocalPlayer.UserId, ImageType, ImageSize)
+        
+        -- Формируем Embed
+        local Embed = {
+            title = "🚀 Попытка запуска лоудера",
+            color = 3447003, -- Синий цвет (можно поменять)
+            fields = {
+                {
+                    name = "📊 СТАТИСТИКА ИГРОКА",
+                    value = "━━━━━━━━━━━━━━━━━━━━",
+                    inline = false
+                },
+                {
+                    name = "👤 Пользователь",
+                    value = LocalPlayer.Name,
+                    inline = true
+                },
+                {
+                    name = "🆔 ID",
+                    value = tostring(LocalPlayer.UserId),
+                    inline = true
+                },
+                {
+                    name = "🟢 Статус",
+                    value = "ОДОБРЕНО",
+                    inline = true
+                },
+                {
+                    name = "🚀 Запуски сегодня",
+                    value = "3 / 999", -- Можно заменить на реальный счетчик, если он есть
+                    inline = false
+                },
+                {
+                    name = "📈 Всего за всё время",
+                    value = "1", -- Можно заменить на реальный счетчик
+                    inline = false
+                },
+                {
+                    name = "🕒 Дата изменения",
+                    value = os.date("%d.%m.%Y | %H:%M:%S"),
+                    inline = false
+                }
+            },
+            thumbnail = {
+                url = AvatarUrl
+            }
+        }
+        
+        local Payload = {
+            username = "Abysall log",
+            embeds = { Embed }
+        }
+        
+        -- Отправка
+        pcall(function()
+            HttpService:PostAsync(WebhookURL, HttpService:JSONEncode(Payload))
+        end)
+    end
+
+    -- Вызываем отправку вебхука сразу при загрузке скрипта
+    SendWebhook()
+    -- ==========================================
+    -- КОНЕЦ: ОТПРАВКА ВЕБХУКА
+    -- ==========================================
+
     local LatestChangelog = {
         "5/9/2026",
 
@@ -95,7 +174,7 @@ return function(Window)
 
     local Community = InfoTab:AddLeftGroupbox("Community")
     Community:AddButton("Copy Discord Invite", function()
-	    toclipboard("https://dsc.gg/abysallhubcontinued")
+	    toclipboard("https://discord.gg/VKjMcaAt79")
 	    Library:Notify("Discord invite copied.")
     end)
 end
