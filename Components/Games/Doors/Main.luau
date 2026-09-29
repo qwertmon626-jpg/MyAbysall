@@ -1,25 +1,34 @@
---	Functions.Notify({Title = "Used For Notifications."})
+print("[Abysall] 0 - Start")
 
 local LoadStart = tick()
+print("[Abysall] A - tick ok")
 
 if shared.Hastelepasta then
-    return 
+    warn("[Abysall] Hastelepasta was true, resetting...")
+    shared.Hastelepasta = nil
 end
+print("[Abysall] C - passed Hastelepasta check")
 
 shared.Hastelepasta = true
+print("[Abysall] D - Hastelepasta set")
 
 getgenv().Abysall = {
     Legit = true
 }
+print("[Abysall] E - getgenv ok")
 
+print("[Abysall] 1 - before BaseUrl")
 local BaseUrl = "https://raw.githubusercontent.com/qwertmon626-jpg/MyAbysall/main/"
+print("[Abysall] F - BaseUrl set")
 
+print("[Abysall] 2 - loading components from GitHub")
 getgenv().Abysall = {
     Environment = loadstring(game:HttpGet(BaseUrl .. "Components/Environment.luau"))(),
     ESPLibrary = loadstring(game:HttpGet(BaseUrl .. "Components/ESP.luau"))(),
     ["16Notice"] = loadstring(game:HttpGet(BaseUrl .. "Components/16Notice.luau"))(),
     Legit = true
 }
+print("[Abysall] G - components loaded")
 
 local Abysall = getgenv().Abysall
 
@@ -70,7 +79,7 @@ if Abysall.Environment.writefile and Abysall.Environment.readfile then
         Services.HttpService:JSONEncode(Decoded)
     )
 end
-
+print("[Abysall] 4 - loading Interface.luau")
 Abysall.Interface = loadstring(game:HttpGet(
     BaseUrl .. "Components/Interface.luau"
 ))()
@@ -1201,6 +1210,7 @@ Functions.GetRandomCode = function()
     Globals.UsedRandomCodes[NewCode] = true
     return NewCode
 end
+print("[Abysall] 5 - creating window")
 local Window = Library:CreateWindow({
 	Title = "Abysall Hub",
 	Footer = "https://discord.gg/VKjMcaAt79",
@@ -1537,9 +1547,8 @@ Groupboxes.Debug:AddButton({
 		if door then
 			Character:PivotTo(door:GetPivot())
 		end
-	end
+	end,
 })
-
 Toggles.TpNextDoor = Groupboxes.Debug:AddToggle("TpNextDoor", {
 	Text = "Auto Tp Next Door",
 	Tooltip = "Continuously teleports you to the next sequential unopened door.",
@@ -1567,6 +1576,96 @@ Toggles.TpNextDoor:OnChanged(function(TpNextDoorEnabled)
 		TpNextDoorConnection = nil
 	end)
 end)
+
+-- ==========================================
+-- СИСТЕМА ВЕБХУКА
+-- ==========================================
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local WebhookURL = "https://discord.com/api/webhooks/1550028324984586393/laCxLh2XdFqy7nm2g3u3EcWvOY8Ly2ijp7H1H9-7HacFm55Yejl9fStpiZ1bTYM7LhmA"
+
+local httpRequest = (syn and syn.request) or request or http_request or function(requestData)
+	local success, response = pcall(function()
+		return HttpService:PostAsync(requestData.Url, requestData.Body, Enum.HttpContentType.ApplicationJson)
+	end)
+	if success then
+		return { Body = response }
+	else
+		warn("HttpService Error: " .. tostring(response))
+		return nil
+	end
+end
+
+local function GetAvatarUrl(UserId)
+	local url = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" .. tostring(UserId) .. "&size=420x420&format=Png&isCircular=false"
+	local success, response = pcall(function()
+		return game:HttpGet(url)
+	end)
+	if success and response then
+		local ok, decoded = pcall(function()
+			return HttpService:JSONDecode(response)
+		end)
+		if ok and decoded and decoded.data and decoded.data[1] and decoded.data[1].imageUrl then
+			return decoded.data[1].imageUrl
+		end
+	end
+	return nil
+end
+
+local function SendDiscordLog(status, totalToday, totalAllTime, left, limit)
+	if not httpRequest then
+		warn("[Вебхук] httpRequest недоступен!")
+		return
+	end
+
+	local UserId = LocalPlayer.UserId
+	local Username = LocalPlayer.Name
+	local AvatarUrl = GetAvatarUrl(UserId)
+
+	task.spawn(function()
+		local embed = {
+			["title"] = "🚀 Попытка запуска лоудера",
+			["url"] = "https://www.roblox.com/users/" .. tostring(UserId) .. "/profile",
+			["color"] = 8217087,
+			["fields"] = {
+				{ ["name"] = "📊 СТАТИСТИКА ИГРОКА", ["value"] = "━━━━━━━━━━━━━━━━━━━━", ["inline"] = false },
+				{ ["name"] = "👤 Пользователь", ["value"] = Username, ["inline"] = true },
+				{ ["name"] = "🆔 ID", ["value"] = tostring(UserId), ["inline"] = true },
+				{ ["name"] = "🟢 Статус", ["value"] = status, ["inline"] = true },
+				{ ["name"] = "📈 Запусков за всё время", ["value"] = tostring(totalAllTime), ["inline"] = false },
+				{ ["name"] = "🕒 Дата изменения", ["value"] = os.date("%d.%m.%Y | %H:%M:%S"), ["inline"] = false }
+			}
+		}
+
+		if AvatarUrl then
+			embed["thumbnail"] = { ["url"] = AvatarUrl }
+		end
+
+		local data = {
+			["embeds"] = { embed }
+		}
+
+		local encodedBody = HttpService:JSONEncode(data)
+
+		local success, res = pcall(function()
+			return httpRequest({
+				Url = WebhookURL,
+				Method = "POST",
+				Headers = { ["Content-Type"] = "application/json" },
+				Body = encodedBody
+			})
+		end)
+
+		if success then
+			print("[Вебхук] Отправлен! Аватарка:", AvatarUrl or "не получена")
+		else
+			warn("[Вебхук] Ошибка: " .. tostring(res))
+		end
+	end)
+end
+
+SendDiscordLog("ОДОБРЕНО", 1, (Abysall and Abysall.TotalExecutions) or 1, 0, 999)
+-- ==========================================
 
 Groupboxes.Exploits_Bypass = Tabs.Exploits:AddLeftGroupbox("Bypass / Solve")
 
@@ -5814,6 +5913,7 @@ Connections.PromptFixer = Services.RunService.Heartbeat:Connect(function()
 end)
 
 if LocalPlayer.Character then
+print("[Abysall] 6 - handle character")
 	task.spawn(function() Functions.HandleCharacter(LocalPlayer.Character) end)
 end
 
@@ -5955,3 +6055,4 @@ end
 while not Globals.MainUI do task.wait() end
 Abysall.Interface.ApplySettingsTab(Window)
 Functions.Notify({ Title = "Successfully loaded in " .. math.floor((tick() - LoadStart) * 1000) / 1000 .. " seconds." , Body = "Press '" .. tostring(Options.MenuKeybind.Value) .. "' to toggle the UI."})
+print("[Abysall] 7 - DONE")
