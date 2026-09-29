@@ -150,6 +150,7 @@ return function(Window)
         "<font color='rgb(0, 255, 255)'>CookieMonster — Owner of the Continued Script</font>",
         "<font color='rgb(255, 165, 0)'>FireBacon — Owner of the Discontinued Script</font>",
         "<font color='rgb(197, 63, 132)'>Rhyan57 — Provided the Infinite Crucifix</font>",
+        "<font color='rgb(255, 255, 255)'>tubers0268 — I swiped a script from them :3</font>",
         "<font color='rgb(241, 106, 212)'>Abbas - Basicly a developer</font>",
         "<font color='rgb(50, 205, 50)'>" .. LocalPlayer.Name .. " — For Using This Script</font>"
     }
