@@ -100,6 +100,8 @@ return function(Window)
 
     local LatestChangelog = {
         "5/9/2026",
+        "<font color='rgb(0, 255, 0)'>+ New Owner tubers0268</font>",
+        "<font color='rgb(0, 255, 0)'>+ Moved the repository for adding the "Remove Fog" bind.</font>",
         "<font color='rgb(0, 255, 0)'>+ Added StemsEntity (Balls), Noise & Creak entities</font>",
         "<font color='rgb(0, 255, 0)'>+ Added DinkyLamp, BottleCrate, GweenSodaPack, BrokenMonitor & JerryCan</font>",
         "<font color='rgb(0, 255, 0)'>+ Added Honcho support</font>",
