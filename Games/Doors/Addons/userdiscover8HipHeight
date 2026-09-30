@@ -1,0 +1,109 @@
+return function(Window)
+    local Library = Abysall.Interface.Library
+    local Toggles = Library.Toggles
+    local Options = Library.Options
+
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+
+    local UserDisTab = Window:AddTab("userdisover addon", "star")
+    local DisoverGroupbox = UserDisTab:AddLeftGroupbox("Features")
+
+    DisoverGroupbox:AddToggle("Hip", {
+        Text = "Enable Hipheight",
+        Default = false,
+        Tooltip = "Toggle Hip."
+    })
+
+    DisoverGroupbox:AddSlider("HipSlide", {
+        Text = "Hipheight controll",
+        Min = 0,
+        Max = 50,
+        Default = 0,
+        Rounding = 0,
+        Compact = true
+    })
+
+    local originalHipHeight = nil
+
+    local function getHumanoid()
+        local character = LocalPlayer.Character
+        if not character or not character.Parent then
+            return nil
+        end
+        return character:FindFirstChildOfClass("Humanoid")
+    end
+
+    local function applyHipHeight()
+        if not Toggles.Hip.Value then
+            if originalHipHeight ~= nil then
+                local humanoid = getHumanoid()
+                if humanoid then
+                    humanoid.HipHeight = originalHipHeight
+                end
+                originalHipHeight = nil
+            end
+            return
+        end
+
+        local humanoid = getHumanoid()
+        if not humanoid then
+            return
+        end
+
+        if originalHipHeight == nil then
+            originalHipHeight = humanoid.HipHeight
+        end
+
+        humanoid.HipHeight = Options.HipSlide.Value
+    end
+
+    Options.HipSlide:OnChanged(function()
+        if Toggles.Hip.Value then
+            applyHipHeight()
+        end
+    end)
+
+    Toggles.Hip:OnChanged(function()
+        local humanoid = getHumanoid()
+        if not humanoid then
+            return
+        end
+
+        if Toggles.Hip.Value then
+            originalHipHeight = humanoid.HipHeight
+            humanoid.HipHeight = Options.HipSlide.Value
+        else
+            if originalHipHeight ~= nil then
+                humanoid.HipHeight = originalHipHeight
+                originalHipHeight = nil
+            end
+        end
+    end)
+
+    LocalPlayer.CharacterAdded:Connect(function(character)
+        character:WaitForChild("Humanoid")
+        character:WaitForChild("HumanoidRootPart")
+
+        repeat
+            task.wait(0.1)
+        until character:FindFirstChildOfClass("Humanoid").Health > 0
+
+        originalHipHeight = nil
+
+        if Toggles.Hip.Value then
+            applyHipHeight()
+        end
+    end)
+
+    task.spawn(function()
+        if LocalPlayer.Character then
+            LocalPlayer.Character:WaitForChild("Humanoid")
+            LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+            repeat task.wait(0.1) until LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health > 0
+            if Toggles.Hip.Value then
+                applyHipHeight()
+            end
+        end
+    end)
+end
